@@ -51,9 +51,11 @@ pass the test and an exception needs to be thrown. Also note that the effect rea
 only becomes pronounced if the check keeps on rejecting values (in 50% of the cases
 to be precise). That may mean:
 
-- You have a DDOS attack
-- A programmer calling your method called it the wrong way
-- There was something wrong with the check itself
+- You have a DDOS attack (heads up - the check is holding strong)
+- A programmer calling your method is calling it the wrong way (heads up - the check
+  is holding strong)
+- There was something wrong with the check itself (you call home to say you won't
+  make it for diner)
 
 In all of these cases the relative sluggishness of the exception generation probably
 is the least of your worries.
