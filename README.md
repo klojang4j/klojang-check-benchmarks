@@ -35,22 +35,33 @@ if(something_applies_to(argument)) {
 ```
 
 We deliberately tested only very light-weight checks, like the ```notNull()``` and
-```lt()``` (less-than) checks. If we had picked the ```containsKey()``` check for
-our benchmarks, for example, we would in effect be testing the performance of
-HashMap (or whatever Map implementation we would have used for the occasion), which
-obviously isn't what we were after.
+```lt()``` (less-than) checks. If we had picked the ```containsKey()``` check for our
+benchmarks, for example, we would in effect be testing the performance of HashMap (or
+whatever Map implementation we would have used for the occasion), which obviously
+isn't what we were after.
 
 Also, since this turns out to influence performance more than anything else, we
 contrast plain, constant error messages with error messages that need to be
 interpolated with message arguments. The benchmarks for "hand-coded" checks
 use ```String.format``` while the benchmarks for Klojang Check use the message
-interpolation mechanism used by Klojang Check.
+interpolation mechanism used by Klojang Check. In both cases performance degrades
+significantly. Note though that, by definition, this effect only kicks in once the
+check finds itself on the "anomalous" branch - where the value has failed to pass the
+test and an exception needs to be thrown. Also note that the effect really only
+becomes pronounced if the check keeps on rejecting values (50%). That may mean:
 
-In the ***WithEOM benchmarks shown in the test results the message arguments
-(varargs) array was specified to be null. This is explicitly allowed. It signals to
-Klojang Check that the message contains no message arguments and must be passed as-is
-to the exception. As you can see, it does help somewhat, but only if the test
-repetitively rejects any value thrown at it. Not recommended.
+- You have a DDOS attack
+- A programmer calling your method called it the wrong way
+- There was something wrong with the check itself
+
+In all of these cases the relative sluggishness of the exception generation is the
+least of your worries.
+
+In the ***WithEOM benchmarks shown in the test results the varargs message arguments
+array was specified to be null. This is explicitly allowed. It signals to Klojang
+Check that the message contains no message arguments and must be passed as-is to the
+exception. As you can see, it does help somewhat, but only if the test repetitively
+rejects any value thrown at it. Not recommended.
 
 ## Test Results
 
