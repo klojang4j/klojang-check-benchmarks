@@ -1,6 +1,6 @@
-# JMH Benchmarks for Module nl.naturalis.common
+# JMH Benchmarks for Klojang Check
 
-Benchmarks using JMH for some critical parts of the naturalis-common.
+JMH Benchmarks using for some critical parts of the Klojang Check.
 
 ## How to run
 
