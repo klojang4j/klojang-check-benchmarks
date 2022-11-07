@@ -55,8 +55,8 @@ to be precise). That may mean:
 - A programmer calling your method called it the wrong way
 - There was something wrong with the check itself
 
-In all of these cases the relative sluggishness of the exception generation is the
-least of your worries.
+In all of these cases the relative sluggishness of the exception generation probably
+is the least of your worries.
 
 In the ***WithEOM benchmarks shown in the test results the varargs message arguments
 array was specified to be null. This is explicitly allowed. It signals to Klojang
