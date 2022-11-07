@@ -34,24 +34,23 @@ if(something_applies_to(argument)) {
 }    
 ```
 
-We deliberately tested only very light-weight, like ```notNull()``` and ```lt()```
-(the less-than check). If we had picked the ```containsKey()``` check for our
-benchmarks, for example, we would in effect be testing the performance of HashMap (or
-whatever Map implementation we would have used for the occasion), which obviously
-isn't what we were after.
+We deliberately tested only very light-weight checks, like the ```notNull()``` and
+```lt()``` (less-than) checks. If we had picked the ```containsKey()``` check for
+our benchmarks, for example, we would in effect be testing the performance of
+HashMap (or whatever Map implementation we would have used for the occasion), which
+obviously isn't what we were after.
 
 Also, since this turns out to influence performance more than anything else, we
 contrast plain, constant error messages with error messages that need to be
 interpolated with message arguments. The benchmarks for "hand-coded" checks
 use ```String.format``` while the benchmarks for Klojang Check use the message
-interpolation mechanism provided by Klojang Check.
+interpolation mechanism used by Klojang Check.
 
 In the ***WithEOM benchmarks shown in the test results the message arguments
 (varargs) array was specified to be null. This is explicitly allowed. It signals to
 Klojang Check that the message contains no message arguments and must be passed as-is
 to the exception. As you can see, it does help somewhat, but only if the test
-repetitively rejects any value thrown at it &#8212; which should probably be more
-cause for concern. Not recommended.
+repetitively rejects any value thrown at it. Not recommended.
 
 ## Test Results
 
