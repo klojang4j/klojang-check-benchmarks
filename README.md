@@ -43,8 +43,8 @@ isn't what we were after.
 Also, since this turns out to influence performance more than anything else, we
 contrast plain, constant error messages with error messages that need to be
 interpolated with message arguments. The benchmarks for "hand-coded" checks
-use ```String.format``` while the benchmarks for Klojang Check use the message
-interpolation mechanism used by Klojang Check. In both cases performance degrades
+use ```String.format``` while the benchmarks for Klojang Check use Klojang Check's
+own message interpolation mechanism. In both cases performance degrades
 significantly. Note though that, by definition, this effect only kicks in once the
 check already finds itself on the "anomalous" branch - where the value has failed to
 pass the test and an exception needs to be thrown. Also note that the effect really
