@@ -46,9 +46,10 @@ interpolated with message arguments. The benchmarks for "hand-coded" checks
 use ```String.format``` while the benchmarks for Klojang Check use the message
 interpolation mechanism used by Klojang Check. In both cases performance degrades
 significantly. Note though that, by definition, this effect only kicks in once the
-check finds itself on the "anomalous" branch - where the value has failed to pass the
-test and an exception needs to be thrown. Also note that the effect really only
-becomes pronounced if the check keeps on rejecting values (50%). That may mean:
+check already finds itself on the "anomalous" branch - where the value has failed to
+pass the test and an exception needs to be thrown. Also note that the effect really
+only becomes pronounced if the check keeps on rejecting values (in 50% of the cases
+to be precise). That may mean:
 
 - You have a DDOS attack
 - A programmer calling your method called it the wrong way
