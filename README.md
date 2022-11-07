@@ -1,6 +1,6 @@
 # JMH Benchmarks for Klojang Check
 
-JMH Benchmarks using for some critical parts of the Klojang Check.
+JMH Benchmarks for some critical parts of the Klojang Check.
 
 ## How to run
 
@@ -29,16 +29,16 @@ The performance is compared with an equivalent "hand-coded" check that looks lik
 this:
 
 ```java
-if(something_applies_to(argument)){
+if(something_applies_to(argument)) {
     throw new IllegalArgumentException("an exception message");
 }    
 ```
 
-We purposely tested only very light-weight, like ```notNull()``` and ```lt()```
-(the less-than check). If we had picked the ```containsKey()``` check, for example,
-we would in effect be testing the performance of HashMap (or whatever Map
-implementation we would have used for the purpose), which obviously isn't what we
-were after.
+We deliberately tested only very light-weight, like ```notNull()``` and ```lt()```
+(the less-than check). If we had picked the ```containsKey()``` check for our
+benchmarks, for example, we would in effect be testing the performance of HashMap (or
+whatever Map implementation we would have used for the occasion), which obviously
+isn't what we were after.
 
 Also, since this turns out to influence performance more than anything else, we
 contrast plain, constant error messages with error messages that need to be
