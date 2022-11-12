@@ -7,14 +7,16 @@ import org.openjdk.jmh.infra.Blackhole;
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static org.klojang.check.CommonChecks.lt;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Benchmark)
-@Fork(value = 10, jvmArgs = {"-Xms1G", "-Xmx1G", "-XX:-StackTraceInThrowable"})
-@Warmup(iterations = 4, time = 3)
+@Fork(value = 5, jvmArgs = {"-Xms1G", "-Xmx1G", "-XX:-StackTraceInThrowable"})
+//@Fork(value = 5, jvmArgs = {"-Xms1G", "-Xmx1G"})
+@Warmup(iterations = 4, time = 3000, timeUnit = TimeUnit.MILLISECONDS)
 @Measurement(iterations = 3, time = 3500, timeUnit = TimeUnit.MILLISECONDS)
 public class LessThan_100_Percent_Pass {
 
@@ -26,78 +28,47 @@ public class LessThan_100_Percent_Pass {
   public int counter1;
 
   @Benchmark
-  public void handCoded(Blackhole bh) {
-    try {
-      if (small >= big) {
-        throw new IllegalArgumentException("argument too big");
-      }
-      bh.consume(small);
-    } catch (IllegalArgumentException e) {
-      bh.consume(e);
+  public void handCoded_NoMsgArgs(Blackhole bh) {
+    if (small >= big) {
+      throw new IllegalArgumentException("argument too big");
     }
+    bh.consume(small);
   }
 
   @Benchmark
-  public void handCodedStringFormatErrMsg(Blackhole bh) {
-    try {
-      if (small >= big) {
-        throw new IllegalArgumentException(
-            String.format("%d arg must be < %d", small, big));
-      }
-      bh.consume(small);
-    } catch (IllegalArgumentException e) {
-      bh.consume(e);
+  public void handCoded_WithMsgArgs(Blackhole bh) {
+    if (small >= big) {
+      throw new IllegalArgumentException(
+          String.format("%d arg must be < %d", small, big));
     }
+    bh.consume(small);
   }
 
   @Benchmark
   public void prefabMessage(Blackhole bh) {
-    try {
-      bh.consume(Check.that(small).is(lt(), big).ok());
-    } catch (IllegalArgumentException e) {
-      bh.consume(e);
-    }
+    bh.consume(Check.that(small).is(lt(), big).ok());
   }
 
   @Benchmark
-  public void customMessageWithMsgArgs(Blackhole bh) {
-    try {
-      bh.consume(Check.that(small)
-          .is(lt(), big, "${arg} must be < ${obj}")
-          .ok());
-    } catch (IllegalArgumentException e) {
-      bh.consume(e);
-    }
+  public void customMessage_NoMsgArgs(Blackhole bh) {
+    bh.consume(Check.that(small).is(lt(), big, "argument too big").ok());
   }
 
   @Benchmark
-  public void customMessageNoMsgArgs(Blackhole bh) {
-    try {
-      bh.consume(Check.that(small).is(lt(), big, "argument too big").ok());
-    } catch (IllegalArgumentException e) {
-      bh.consume(e);
-    }
+  public void customMessage_NoMsgArgs_VarArgsNull(Blackhole bh) {
+    bh.consume(Check.that(small).is(lt(), big, "argument too big", null).ok());
   }
 
   @Benchmark
-  public void customMessageNoMsgArgsWithEOM(Blackhole bh) {
-    try {
-      bh.consume(Check.that(small).is(lt(), big, "argument too big", null).ok());
-    } catch (IllegalArgumentException e) {
-      bh.consume(e);
-    }
+  public void customMessage_WithMsgArgs(Blackhole bh) {
+    bh.consume(Check.that(small).is(lt(), big, "${arg} must be < ${obj}").ok());
   }
 
   @Benchmark
   public void customException(Blackhole bh) {
-    try {
-      bh.consume(
-          Check.that(small)
-              .is(lt(), big, () -> new IOException("argument too big"))
-              .ok());
-    } catch (IOException e) {
-      bh.consume(e);
-    }
+    bh.consume(Check.that(small)
+        .is(lt(), big, () -> new IllegalArgumentException("argument too big"))
+        .ok());
   }
 
   @Setup(Level.Trial)

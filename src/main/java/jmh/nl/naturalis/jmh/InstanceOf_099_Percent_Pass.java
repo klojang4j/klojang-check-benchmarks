@@ -4,41 +4,41 @@ import org.klojang.check.Check;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static org.klojang.check.CommonChecks.instanceOf;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Benchmark)
-@Fork(value = 8, jvmArgs = {"-Xms1G", "-Xmx1G", "-XX:-StackTraceInThrowable"})
-@Warmup(iterations = 4, time = 3500, timeUnit = TimeUnit.MILLISECONDS)
+@Fork(value = 5, jvmArgs = {"-Xms1G", "-Xmx1G", "-XX:-StackTraceInThrowable"})
+//@Fork(value = 5, jvmArgs = {"-Xms1G", "-Xmx1G"})
+@Warmup(iterations = 4, time = 3000, timeUnit = TimeUnit.MILLISECONDS)
 @Measurement(iterations = 3, time = 3500, timeUnit = TimeUnit.MILLISECONDS)
 public class InstanceOf_099_Percent_Pass {
-
-  private static final Object[] NO_MSG_ARGS = null;
 
   public Object testVal;
   public Class testClass;
 
   @Benchmark
-  public void handCoded(Blackhole bh) {
+  public void handCoded_NoMsgArgs(Blackhole bh) {
     try {
       if (!testClass.isInstance(testVal)) {
         throw new IllegalArgumentException("argument has wrong type");
       }
       bh.consume(testVal);
     } catch (IllegalArgumentException e) {
+      bh.consume(e);
     }
   }
 
   @Benchmark
-  public void handCodedStringFormatErrMsg(Blackhole bh) {
+  public void handCoded_WithMsgArgs(Blackhole bh) {
     try {
       if (!testClass.isInstance(testVal)) {
         throw new IllegalArgumentException(
@@ -46,6 +46,7 @@ public class InstanceOf_099_Percent_Pass {
       }
       bh.consume(testVal);
     } catch (IllegalArgumentException e) {
+      bh.consume(e);
     }
   }
 
@@ -54,26 +55,40 @@ public class InstanceOf_099_Percent_Pass {
     try {
       bh.consume(Check.that(testVal).is(instanceOf(), testClass).ok());
     } catch (IllegalArgumentException e) {
+      bh.consume(e);
     }
   }
 
   @Benchmark
-  public void customMessageWithMsgArgs(Blackhole bh) {
+  public void customMessage_NoMsgArgs(Blackhole bh) {
+    try {
+      bh.consume(Check.that(testVal)
+          .is(instanceOf(), testClass, "argument has wrong type")
+          .ok());
+    } catch (IllegalArgumentException e) {
+      bh.consume(e);
+    }
+  }
+
+  @Benchmark
+  public void customMessage_NoMsgArgs_VarArgsNull(Blackhole bh) {
+    try {
+      bh.consume(Check.that(testVal)
+          .is(instanceOf(), testClass, "argument has wrong type", null)
+          .ok());
+    } catch (IllegalArgumentException e) {
+      bh.consume(e);
+    }
+  }
+
+  @Benchmark
+  public void customMessage_WithMsgArgs(Blackhole bh) {
     try {
       bh.consume(Check.that(testVal)
           .is(instanceOf(), testClass, "${arg} must be instance of ${obj}")
           .ok());
     } catch (IllegalArgumentException e) {
-    }
-  }
-
-  @Benchmark
-  public void customMessageNoMsgArgs(Blackhole bh) {
-    try {
-      bh.consume(Check.that(testVal)
-          .is(instanceOf(), testClass, "argument has wrong type", NO_MSG_ARGS)
-          .ok());
-    } catch (IllegalArgumentException e) {
+      bh.consume(e);
     }
   }
 
@@ -83,9 +98,10 @@ public class InstanceOf_099_Percent_Pass {
       bh.consume(Check.that(testVal)
           .is(instanceOf(),
               testClass,
-              () -> new IOException("argument has wrong type"))
+              () -> new IllegalArgumentException("argument has wrong type"))
           .ok());
-    } catch (IOException e) {
+    } catch (IllegalArgumentException e) {
+      bh.consume(e);
     }
   }
 

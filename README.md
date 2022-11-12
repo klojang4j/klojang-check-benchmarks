@@ -60,7 +60,7 @@ to be precise). That may mean:
 In all of these cases the relative sluggishness of the exception generation probably
 is the least of your worries.
 
-In the ***WithEOM benchmarks shown in the test results the varargs message arguments
+In the ***VarArgsNull benchmarks shown in the test results the varargs message arguments
 array was specified to be null. This is explicitly allowed. It signals to Klojang
 Check that the message contains no message arguments and must be passed as-is to the
 exception. As you can see, it does help somewhat, but only if the test repetitively
@@ -73,13 +73,15 @@ rejects any value thrown at it. Not recommended.
 #### NotNull_100_Percent_Pass
 
 ```
-Benchmark                                               Mode  Cnt   Score   Error  Units
-NotNull_100_Percent_Pass.customException                avgt    6  11.409 ± 0.103  ns/op
-NotNull_100_Percent_Pass.customMessageNoMsgArgs         avgt    6  11.406 ± 0.114  ns/op
-NotNull_100_Percent_Pass.customMessageWithMsgArgs       avgt    6  11.415 ± 0.049  ns/op
-NotNull_100_Percent_Pass.handCoded                      avgt    6  11.424 ± 0.042  ns/op
-NotNull_100_Percent_Pass.handCodedStringFormatErrMsg    avgt    6  11.430 ± 0.054  ns/op
-NotNull_100_Percent_Pass.prefabMessage                  avgt    6  11.452 ± 0.187  ns/op
+Benchmark                                                     Mode  Cnt   Score   Error  Units
+NotNull_100_Percent_Pass.customException                      avgt    9  11.371 ± 0.010  ns/op
+NotNull_100_Percent_Pass.customMessage_NoMsgArgs              avgt    9  11.408 ± 0.080  ns/op
+NotNull_100_Percent_Pass.customMessage_NoMsgArgs_VarArgsNull  avgt    9  11.295 ± 0.185  ns/op
+NotNull_100_Percent_Pass.customMessage_WithMsgArgs            avgt    9  11.390 ± 0.039  ns/op
+NotNull_100_Percent_Pass.handCoded_NoMsgArgs                  avgt    9  11.373 ± 0.026  ns/op
+NotNull_100_Percent_Pass.handCoded_WithMsgArgs                avgt    9  11.365 ± 0.017  ns/op
+NotNull_100_Percent_Pass.plainNullTest                        avgt    9  11.375 ± 0.017  ns/op
+NotNull_100_Percent_Pass.prefabMessage                        avgt    9  11.401 ± 0.071  ns/op
 ```
 
 #### NotNull_099_Percent_Pass
@@ -97,14 +99,15 @@ NotNull_099_Percent_Pass.prefabMessage                  avgt   90  15.040 ± 0.2
 #### NotNull_050_Percent_Pass
 
 ```
-Benchmark                                               Mode  Cnt   Score   Error  Units
-NotNull_050_Percent_Pass.customException                avgt   90  24.746 ± 0.105  ns/op
-NotNull_050_Percent_Pass.customMessageNoMsgArgs         avgt   90  26.184 ± 0.127  ns/op
-NotNull_050_Percent_Pass.customMessageNoMsgArgsWithEOM  avgt   90  24.651 ± 0.097  ns/op
-NotNull_050_Percent_Pass.customMessageWithMsgArgs       avgt   90  63.345 ± 4.346  ns/op
-NotNull_050_Percent_Pass.handCoded                      avgt   90  24.581 ± 0.110  ns/op
-NotNull_050_Percent_Pass.handCodedStringFormatErrMsg    avgt   90  61.041 ± 0.294  ns/op
-NotNull_050_Percent_Pass.prefabMessage                  avgt   90  28.526 ± 0.126  ns/op
+Benchmark                                                     Mode  Cnt    Score    Error  Units
+NotNull_050_Percent_Pass.customException                      avgt    9  291.483 ± 11.432  ns/op
+NotNull_050_Percent_Pass.customMessage_NoMsgArgs              avgt    9  286.031 ± 12.750  ns/op
+NotNull_050_Percent_Pass.customMessage_NoMsgArgs_VarArgsNull  avgt    9  279.262 ±  1.267  ns/op
+NotNull_050_Percent_Pass.customMessage_WithMsgArgs            avgt    9  363.181 ±  3.478  ns/op
+NotNull_050_Percent_Pass.handCoded_NoMsgArgs                  avgt    9  273.724 ±  2.385  ns/op
+NotNull_050_Percent_Pass.handCoded_WithMsgArgs                avgt    9  327.339 ±  3.174  ns/op
+NotNull_050_Percent_Pass.plainNullTest                        avgt    9   11.431 ±  0.065  ns/op
+NotNull_050_Percent_Pass.prefabMessage                        avgt    9  283.061 ±  2.539  ns/op
 ```
 
 ### Benchmarks for CommonChecks.lt (less-than check)
