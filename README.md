@@ -29,27 +29,61 @@ The performance is compared with an equivalent "hand-coded" check that looks lik
 this:
 
 ```java
-if(something_applies_to(argument)) {
+if(condition) {
     throw new IllegalArgumentException("an exception message");
 }    
 ```
+For example, for the null check, the hand-coded check looks like this:
+```java
+if(randomizedTestVal == null) {
+    throw new IllegalArgumentException("arg must not be null");
+}    
+```
+while the KloJang Check counterparts explores the various variants Klojang Check 
+offers:
+```java
+// prefab message from Klojang Check
+Check.that(arg, "arg").is(notNull());
+// custom message
+Check.that(arg).is(notNull(), "arg must not be null");
+// custom exception
+Check.that(arg).is(notNull(), new IllegalArgumentException("arg must not be null"));
+```
 
+The argument is thrown into the compiler black hole to prevent JVM optimizations.
+
+### Exception Handling
+
+In the tests where the test value would every now and then not pass the test, the the
+ensuing exception is thrown into the compiler black hole as well. However, after some
+preliminary tests, we decided to run the tests with JVM option
+```-XX:-StackTraceInThrowable```. In other words, the JVM will not generate a stack
+trace. This is not how the JVM usually starts up. However, if we don't specify this
+option, _all_ tests will at once run more than 20 times slower
+(that's 2000% !). In other words, what we would really be testing is the how fast the
+stack trace is generated.
+
+### Light-weight Checks Only
 We deliberately tested only very light-weight checks, like the ```notNull()``` and
 ```lt()``` (less-than) checks. If we had picked the ```containsKey()``` check for our
 benchmarks, for example, we would in effect be testing the performance of HashMap (or
 whatever Map implementation we would have used for the occasion), which obviously
 isn't what we were after.
 
-Also, since this turns out to influence performance more than anything else, we
-contrast plain, constant error messages with error messages that need to be
-interpolated with message arguments. The benchmarks for "hand-coded" checks
-use ```String.format``` while the benchmarks for Klojang Check use Klojang Check's
-own message interpolation mechanism. In both cases performance degrades
-significantly. Note though that, by definition, this effect only kicks in once the
-check already finds itself on the "anomalous" branch - where the value has failed to
-pass the test and an exception needs to be thrown. Also note that the effect really
-only becomes pronounced if the check keeps on rejecting values (in 50% of the cases
-to be precise). That may mean:
+### Message Interpolation
+Apart from stacktrace generation, which makes everything else pale into 
+insignificance, the one thing that turns out to most influence the performance of 
+a check, is whether the error message passed to the exception is a string constant
+or dynamically generated using some form of message interpolation. Several 
+benchmarks measure this effect. The benchmarks for "hand-coded" checks use 
+```String.format``` while the benchmarks for Klojang Check use Klojang Check's
+own message interpolation mechanism.
+
+In both cases performance degrades significantly. Note though that, by definition,
+this effect only kicks in once the check already finds itself on the "anomalous" 
+branch - where the value has failed to pass the test and an exception needs to be 
+thrown. Also note that the effect really only becomes pronounced if the check 
+keeps on rejecting values (in 50% of the cases to be precise). That may mean:
 
 - You have a DDOS attack (heads up - the check is holding strong)
 - A programmer calling your method is calling it the wrong way (heads up - the check
@@ -60,11 +94,15 @@ to be precise). That may mean:
 In all of these cases the relative sluggishness of the exception generation probably
 is the least of your worries.
 
-In the ***VarArgsNull benchmarks shown in the test results the varargs message arguments
-array was specified to be null. This is explicitly allowed. It signals to Klojang
-Check that the message contains no message arguments and must be passed as-is to the
-exception. As you can see, it does help somewhat, but only if the test repetitively
-rejects any value thrown at it. Not recommended.
+### Suppressing Message Parsing
+The ***VarArgsNull benchmarks measure the effect of specifying null for the varargs
+message arguments array was specified to be null. This is explicitly allowed. It
+signals to Klojang Check that the message contains no message arguments and must be
+passed as-is to the exception. As you can see, it does help somewhat, but only if the
+test repetitively rejects any value thrown at it. If stacktrace generation enabled
+(as is ordinarily the case), it is silly spoil your code by specifying null for the
+message arguments array. The performance gain it yields is dwarfed by the 
+performance degradation of the stacktrace generation.
 
 ## Test Results
 
@@ -80,34 +118,33 @@ NotNull_100_Percent_Pass.customMessage_NoMsgArgs_VarArgsNull  avgt    9  11.295 
 NotNull_100_Percent_Pass.customMessage_WithMsgArgs            avgt    9  11.390 ± 0.039  ns/op
 NotNull_100_Percent_Pass.handCoded_NoMsgArgs                  avgt    9  11.373 ± 0.026  ns/op
 NotNull_100_Percent_Pass.handCoded_WithMsgArgs                avgt    9  11.365 ± 0.017  ns/op
-NotNull_100_Percent_Pass.plainNullTest                        avgt    9  11.375 ± 0.017  ns/op
 NotNull_100_Percent_Pass.prefabMessage                        avgt    9  11.401 ± 0.071  ns/op
 ```
 
 #### NotNull_099_Percent_Pass
 
 ```
-Benchmark                                               Mode  Cnt   Score   Error  Units
-NotNull_099_Percent_Pass.customException                avgt   90  14.884 ± 0.250  ns/op
-NotNull_099_Percent_Pass.customMessageNoMsgArgs         avgt   90  15.578 ± 0.093  ns/op
-NotNull_099_Percent_Pass.customMessageWithMsgArgs       avgt   90  16.248 ± 0.104  ns/op
-NotNull_099_Percent_Pass.handCoded                      avgt   90  14.775 ± 0.178  ns/op
-NotNull_099_Percent_Pass.handCodedStringFormatErrMsg    avgt   90  15.763 ± 0.146  ns/op
-NotNull_099_Percent_Pass.prefabMessage                  avgt   90  15.040 ± 0.297  ns/op
+Benchmark                                                     Mode  Cnt   Score   Error  Units
+NotNull_099_Percent_Pass.customException                      avgt   15  11.756 ± 0.108  ns/op
+NotNull_099_Percent_Pass.customMessageWithMsgArgs             avgt   15  12.750 ± 0.116  ns/op
+NotNull_099_Percent_Pass.customMessage_NoMsgArgs              avgt   15  12.238 ± 0.329  ns/op
+NotNull_099_Percent_Pass.customMessage_NoMsgArgs_VarArgsNull  avgt   15  11.943 ± 0.753  ns/op
+NotNull_099_Percent_Pass.handCoded_NoMsgArgs                  avgt   15  11.672 ± 0.054  ns/op
+NotNull_099_Percent_Pass.handCoded_WithMsgArgs                avgt   15  12.413 ± 0.043  ns/op
+NotNull_099_Percent_Pass.prefabMessage                        avgt   15  11.782 ± 0.053  ns/op
 ```
 
 #### NotNull_050_Percent_Pass
 
 ```
-Benchmark                                                     Mode  Cnt    Score    Error  Units
-NotNull_050_Percent_Pass.customException                      avgt    9  291.483 ± 11.432  ns/op
-NotNull_050_Percent_Pass.customMessage_NoMsgArgs              avgt    9  286.031 ± 12.750  ns/op
-NotNull_050_Percent_Pass.customMessage_NoMsgArgs_VarArgsNull  avgt    9  279.262 ±  1.267  ns/op
-NotNull_050_Percent_Pass.customMessage_WithMsgArgs            avgt    9  363.181 ±  3.478  ns/op
-NotNull_050_Percent_Pass.handCoded_NoMsgArgs                  avgt    9  273.724 ±  2.385  ns/op
-NotNull_050_Percent_Pass.handCoded_WithMsgArgs                avgt    9  327.339 ±  3.174  ns/op
-NotNull_050_Percent_Pass.plainNullTest                        avgt    9   11.431 ±  0.065  ns/op
-NotNull_050_Percent_Pass.prefabMessage                        avgt    9  283.061 ±  2.539  ns/op
+Benchmark                                                     Mode  Cnt   Score   Error  Units
+NotNull_050_Percent_Pass.customException                      avgt   15  24.490 ± 0.135  ns/op
+NotNull_050_Percent_Pass.customMessage_NoMsgArgs              avgt   15  26.021 ± 0.241  ns/op
+NotNull_050_Percent_Pass.customMessage_NoMsgArgs_VarArgsNull  avgt   15  24.442 ± 0.116  ns/op
+NotNull_050_Percent_Pass.customMessage_WithMsgArgs            avgt   15  55.490 ± 9.749  ns/op
+NotNull_050_Percent_Pass.handCoded_NoMsgArgs                  avgt   15  24.438 ± 0.116  ns/op
+NotNull_050_Percent_Pass.handCoded_WithMsgArgs                avgt   15  61.442 ± 0.700  ns/op
+NotNull_050_Percent_Pass.prefabMessage                        avgt   15  28.093 ± 0.429  ns/op
 ```
 
 ### Benchmarks for CommonChecks.lt (less-than check)
