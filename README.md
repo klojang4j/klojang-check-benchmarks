@@ -266,7 +266,7 @@ over
 if(obj instanceof Something)
 ```
 
-So wat about the check corresponding to the first pattern?
+So, what about the check corresponding to the reference comparison?
 
 ```java
 // The hand-coded check:
