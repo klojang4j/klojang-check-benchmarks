@@ -246,15 +246,15 @@ InstanceOf_050_Percent_Pass.prefabMessage                       avgt   15  54.43
 
 ## Miscellaneous Benchmarks
 
-### Testing for type equality
+### Performance of has()
 
-OK &#8212; we know the trend now. No point in repeating this for each and every check
-within the ```CommonChecks``` class. But note the intrinsic sluggishness of the
-instance-of check **_relative_** to the null check and less-than check. It's almost
-2.5 times as slow for the "100_Percent_Pass" check. That is no surprise, of course.
-If the test value's class is not referentially equal to the provided class,
-instance-of must check the superclass and interfaces of the test value's class. That
-may be why many developers prefer
+OK, we know the trend now. No point in repeating this for each and every check within
+the ```CommonChecks``` class. But note the intrinsic sluggishness of the instance-of
+check **_relative_** to the null check and less-than check. It's almost 2.5 times as
+slow for the "100_Percent_Pass" check. That is no surprise, of course. If the test
+value's class is not referentially equal to the provided class, instance-of must
+check the superclass and interfaces of the test value's class. That may be why many
+developers prefer
 
 ```java
 if(obj.getClass() == Something.class)
@@ -266,8 +266,7 @@ over
 if(obj instanceof Something)
 ```
 
-So wat about the check corresponding to the first pattern, and more specifically,
-the _idiomatic_ expression of that check within Klojang Check?
+So wat about the check corresponding to the first pattern?
 
 ```java
 // The hand-coded check:
@@ -275,7 +274,7 @@ if(obj.getClass() == Something.class){
     throw new IllegalArgumentException("obj has wrong type");
 }
 
-// Its straightforward counterpart Klojang Check:
+// Its straightforward translation into Klojang Check:
 Check.that(obj.getClass()).is(sameAs(), Something.class);
 
 // Not bad, but we can express this in a more idiomatic way:
@@ -294,8 +293,8 @@ HasTypeEqualTo.arg_getClass_isSameAs  avgt   15  14.842 ± 0.070  ns/op
 HasTypeEqualTo.arg_hasType_sameAs     avgt   15  12.588 ± 0.054  ns/op
 ```
 
-(Of course we repeated the benchmark a few times, but the result always looked like
-this one.) We cannot currently explain this. All we can say (or rather conclude) is:
+(Of course we ran the benchmark a few times, but the result always looked like this
+one.) We cannot currently explain this. All we can say (or rather conclude) is:
 the JVM just has become really really good at lambdas &#8212; or dynamic invocation
 in general.
 
