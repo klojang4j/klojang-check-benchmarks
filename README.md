@@ -58,7 +58,7 @@ Check.that(testValue, "arg").is(notNull());
 Check.that(testValue).is(notNull(), "arg must not be null");
 // custom exception
 Check.that(arg).is(notNull(),
-    ()->new IllegalArgumentException("arg must not be null"));
+    () -> new IllegalArgumentException("arg must not be null"));
 ```
 
 The argument is thrown into the compiler black hole to prevent JVM optimizations.
