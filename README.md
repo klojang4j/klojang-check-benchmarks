@@ -108,9 +108,9 @@ is the least of your worries.
 The "VarArgsNull" benchmarks measure the effect of specifying null for the varargs
 message arguments array. This is explicitly allowed. It signals to Klojang Check that
 the message contains no message arguments and must be passed as-is to the exception.
-As you can see, it does help somewhat, but for applications that run with stacktrace
-generation disabled &#8212; and then only if you expect to process a
-_whole_ lot of invalid/illegal values. Otherwise it is just silly.
+As you can see, it does help somewhat, but it only makes sense for applications that
+run with stacktrace generation disabled &#8212; and then only if you expect to
+process a _whole_ lot of invalid/illegal values. Otherwise it is just silly.
 
 ## Test Results
 
