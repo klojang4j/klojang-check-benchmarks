@@ -63,7 +63,7 @@ Check.that(arg).is(notNull(),
 
 The argument is thrown into the compiler black hole to prevent JVM optimizations.
 
-### Exception Handling
+### No stacktraces
 
 In the benchmarks where the test value fails the test every now and then , the ensuing
 exception is thrown into the compiler black hole as well. However, after some
@@ -75,7 +75,7 @@ over 20 times slower. That's 2000%. That dwarves any subtlety in performance
 differences between whatever variants we choose to measure. We would, in effect, be
 testing the performance of stacktrace generation.
 
-### Light-weight Checks Only
+### Light-weight Checks
 
 We deliberately tested only the most light-weight checks &#8212; like the
 ```notNull()``` and ```lt()``` (less-than) checks. If we had picked the
