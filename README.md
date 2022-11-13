@@ -17,13 +17,19 @@ java -jar target/benchmarks.jar NotNull_100_Percent_Pass
 These benchmarks measure the performance of the three variants provided by Klojang
 Check for validating arguments:
 
-- Klojang Check generates both the exception message and the exception itself
-- The client provides the exception message and Klojang Check generates the exception
-- The client provides both the exception message and the exception itself
+1. Klojang Check generates both the exception message and the exception itself 
+  (the "prefabMessage" benchmarks)
+2. The client provides the exception message and Klojang Check generates the 
+  exception (the "customMessage" benchmarks)
+3. The client provides both the exception message and the exception itself (the 
+  "customException" benchmarks)
 
-Each variant is again benchmarked for three scenarios: the argument _always_ passes
-the test; it passes the test in 99% percent of the cases; it passes the test in 50%
-of the cases.
+Each variant is again benchmarked for three scenarios:
+1. The argument _always_ passes the test (the "100_Percent_Pass" benchmarks)
+2. The argument passes the test in 99% percent of the cases (the "099_Percent_Pass" 
+   benchmarks)
+3. The argument passes the test in 50% of the cases  (the "050_Percent_Pass" 
+   benchmarks)
 
 The performance is compared with an equivalent "hand-coded" check that looks like
 this:
@@ -39,54 +45,57 @@ if(randomizedTestVal == null) {
     throw new IllegalArgumentException("arg must not be null");
 }    
 ```
-while the KloJang Check counterparts explores the various variants Klojang Check 
-offers:
+The Klojang Check counterparts to this check would look like this:
 ```java
 // prefab message from Klojang Check
 Check.that(arg, "arg").is(notNull());
 // custom message
 Check.that(arg).is(notNull(), "arg must not be null");
 // custom exception
-Check.that(arg).is(notNull(), new IllegalArgumentException("arg must not be null"));
+Check.that(arg).is(notNull(),
+        () -> new IllegalArgumentException("arg must not be null"));
 ```
 
 The argument is thrown into the compiler black hole to prevent JVM optimizations.
 
 ### Exception Handling
 
-In the tests where the test value would every now and then not pass the test, the the
-ensuing exception is thrown into the compiler black hole as well. However, after some
+In the tests where the test value every now and then fails the test, the ensuing
+exception is thrown into the compiler black hole as well. However, after some
 preliminary tests, we decided to run the tests with JVM option
 ```-XX:-StackTraceInThrowable```. In other words, the JVM will not generate a stack
-trace. This is not how the JVM usually starts up. However, if we don't specify this
-option, _all_ tests will at once run more than 20 times slower
-(that's 2000% !). In other words, what we would really be testing is the how fast the
-stack trace is generated.
+trace. That is not a realistic scenario because stacktrace generation is enabled by
+default. However, if we don't specify this option, _all_ tests will at once run well
+over 20 times slower. That's 2000%. That dwarves any subtlety in performance
+differences between whatever variants we choose to measure. We would, in effect, be
+testing the performance of stacktrace generation.
 
 ### Light-weight Checks Only
-We deliberately tested only very light-weight checks, like the ```notNull()``` and
-```lt()``` (less-than) checks. If we had picked the ```containsKey()``` check for our
-benchmarks, for example, we would in effect be testing the performance of HashMap (or
-whatever Map implementation we would have used for the occasion), which obviously
-isn't what we were after.
+
+We deliberately tested only the most light-weight checks &#8212; like the
+```notNull()``` and ```lt()``` (less-than) checks. If we had picked the
+```containsKey()``` check for our benchmarks, for example, we would in effect be
+testing the performance of HashMap (or whatever Map implementation we would have used
+for the occasion), which obviously isn't what we were after.
 
 ### Message Interpolation
-Apart from stacktrace generation, which makes everything else pale into 
-insignificance, the one thing that turns out to most influence the performance of 
-a check, is whether the error message passed to the exception is a string constant
-or dynamically generated using some form of message interpolation. Several 
-benchmarks measure this effect. The benchmarks for "hand-coded" checks use 
-```String.format``` while the benchmarks for Klojang Check use Klojang Check's
-own message interpolation mechanism.
+
+Apart from stacktrace generation, which makes everything else pale into
+insignificance, the one thing that turns out to influence the performance of a check
+the most, is whether the error message passed to the exception is a string constant
+or dynamically generated using some form of message interpolation. The
+"No MsgArgs" and "WithMsgArgs" benchmarks, respectively, measure this effect. The
+benchmarks for "hand-coded" checks use```String.format``` while the benchmarks for
+Klojang Check use Klojang Check's own message interpolation mechanism.
 
 In both cases performance degrades significantly. Note though that, by definition,
 this effect only kicks in once the check already finds itself on the "anomalous" 
 branch - where the value has failed to pass the test and an exception needs to be 
 thrown. Also note that the effect really only becomes pronounced if the check 
-keeps on rejecting values (in 50% of the cases to be precise). That may mean:
+keeps on rejecting values. That may mean:
 
-- You have a DDOS attack (heads up - the check is holding strong)
-- A programmer calling your method is calling it the wrong way (heads up - the check
+- You have a DDOS attack (heads up - your check is holding strong)
+- A programmer calling your method is calling it the wrong way (heads up - your check
   is holding strong)
 - There was something wrong with the check itself (you call home to say you won't
   make it for diner)
@@ -95,14 +104,13 @@ In all of these cases the relative sluggishness of the exception generation prob
 is the least of your worries.
 
 ### Suppressing Message Parsing
+
 The ***VarArgsNull benchmarks measure the effect of specifying null for the varargs
-message arguments array was specified to be null. This is explicitly allowed. It
-signals to Klojang Check that the message contains no message arguments and must be
-passed as-is to the exception. As you can see, it does help somewhat, but only if the
-test repetitively rejects any value thrown at it. If stacktrace generation enabled
-(as is ordinarily the case), it is silly spoil your code by specifying null for the
-message arguments array. The performance gain it yields is dwarfed by the 
-performance degradation of the stacktrace generation.
+message arguments array. This is explicitly allowed. It signals to Klojang Check that
+the message contains no message arguments and must be passed as-is to the exception.
+As you can see, it does help somewhat, but it only makes sense if your application is
+so performance-critical that you also decide to disable stacktrace generation.
+Otherwise it is just silly.
 
 ## Test Results
 
