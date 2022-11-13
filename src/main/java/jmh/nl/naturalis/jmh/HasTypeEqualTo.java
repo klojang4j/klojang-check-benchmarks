@@ -26,22 +26,19 @@ public class HasTypeEqualTo {
 
   @Benchmark
   public void handCoded(Blackhole bh) {
-    try {
-      if (testVal.getClass() != Double.class) {
-        throw new IllegalArgumentException("argument has wrong type");
-      }
-      bh.consume(testVal);
-    } catch (IllegalArgumentException e) {
+    if (testVal.getClass() != Double.class) {
+      throw new IllegalArgumentException("argument has wrong type");
     }
+    bh.consume(testVal);
   }
 
   @Benchmark
-  public void customException_getClassIsSameAs(Blackhole bh) {
+  public void arg_getClass_isSameAs(Blackhole bh) {
     bh.consume(Check.that(testVal.getClass()).is(sameAs(), Double.class, EXC).ok());
   }
 
   @Benchmark
-  public void customException_hasTypeSameAs(Blackhole bh) {
+  public void arg_hasType_sameAs(Blackhole bh) {
     bh.consume(Check.that(testVal).has(type(), sameAs(), Double.class, EXC).ok());
   }
 

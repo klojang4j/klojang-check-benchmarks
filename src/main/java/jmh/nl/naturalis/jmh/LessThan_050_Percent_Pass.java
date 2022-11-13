@@ -90,7 +90,9 @@ public class LessThan_050_Percent_Pass {
   @Benchmark
   public void customException(Blackhole bh) {
     try {
-      bh.consume(Check.that(small).is(lt(), big, () -> new IllegalArgumentException("argument too big")).ok());
+      bh.consume(Check.that(small)
+          .is(lt(), big, () -> new IllegalArgumentException("argument too big"))
+          .ok());
     } catch (IllegalArgumentException e) {
       bh.consume(e);
     }
