@@ -252,8 +252,8 @@ OK, we know the trend now. No point in repeating this for each and every check w
 the ```CommonChecks``` class. But note the intrinsic sluggishness of the instance-of
 check **_relative_** to the null check and less-than check. It's almost 2.5 times as
 slow for the "100_Percent_Pass" check. That is no surprise, of course. If the test
-value's class is not referentially equal to the provided class, instance-of must
-check the superclass and interfaces of the test value's class. That may be why many
+value's class is not referentially equal to the given class, instance-of must check
+the superclass and interfaces of the test value's class. That may be why many
 developers prefer
 
 ```java
@@ -281,7 +281,7 @@ Check.that(obj.getClass()).is(sameAs(), Something.class);
 Check.that(obj).has(type(), sameAs(), Something.class);
 ```
 
-Sure enough, in all of the above variants performance reached parity with the null
+Sure enough, all of the above variants performance now reach parity with the null
 check and the less-than check. But (for no good reason) we feared the idiomatic
 variant might lag somewhat behind the hand-coded and the "straightforward" variants.
 Quite the contrary, however:
