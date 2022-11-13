@@ -65,7 +65,7 @@ The argument is thrown into the compiler black hole to prevent JVM optimizations
 
 ### Exception Handling
 
-In the tests where the test value every now and then fails the test, the ensuing
+In the benchmarks where the test value fails the test every now and then , the ensuing
 exception is thrown into the compiler black hole as well. However, after some
 preliminary tests, we decided to run the tests with JVM option
 ```-XX:-StackTraceInThrowable```. In other words, the JVM will not generate a stack
