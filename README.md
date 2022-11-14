@@ -12,7 +12,7 @@ For example:
 
 java -jar target/benchmarks.jar NotNull_100_Percent_Pass
 
-## How and What We Tested
+## Test Setup
 
 These benchmarks measure the performance of the three variants provided by Klojang
 Check for validating arguments:
@@ -44,7 +44,7 @@ if(condition){
 For example, for the null check, the hand-coded check looks like this:
 
 ```java
-if(randomizedTestVal==null){
+if(testValue = null){
     throw new IllegalArgumentException("arg must not be null");
 }    
 ```
@@ -53,19 +53,19 @@ The Klojang Check counterparts to this check would look like this:
 
 ```java
 // prefab message from Klojang Check
-Check.that(arg,"arg").is(notNull());
+Check.that(testValue, "arg").is(notNull());
 // custom message
-Check.that(arg).is(notNull(),"arg must not be null");
+Check.that(testValue).is(notNull(), "arg must not be null");
 // custom exception
 Check.that(arg).is(notNull(),
-    ()->new IllegalArgumentException("arg must not be null"));
+    () -> new IllegalArgumentException("arg must not be null"));
 ```
 
 The argument is thrown into the compiler black hole to prevent JVM optimizations.
 
-### Exception Handling
+### No stacktraces
 
-In the tests where the test value every now and then fails the test, the ensuing
+In the benchmarks where the test value fails the test every now and then , the ensuing
 exception is thrown into the compiler black hole as well. However, after some
 preliminary tests, we decided to run the tests with JVM option
 ```-XX:-StackTraceInThrowable```. In other words, the JVM will not generate a stack
@@ -75,7 +75,7 @@ over 20 times slower. That's 2000%. That dwarves any subtlety in performance
 differences between whatever variants we choose to measure. We would, in effect, be
 testing the performance of stacktrace generation.
 
-### Light-weight Checks Only
+### Light-weight Checks
 
 We deliberately tested only the most light-weight checks &#8212; like the
 ```notNull()``` and ```lt()``` (less-than) checks. If we had picked the
@@ -248,7 +248,7 @@ InstanceOf_050_Percent_Pass.prefabMessage                       avgt   15  54.43
 
 ### Performance of has()
 
-OK, we know the trend now. No point in repeating this for each and every check within
+We know the trend now. No point in repeating this for each and every check within
 the ```CommonChecks``` class. But note the intrinsic sluggishness of the instance-of
 check **_relative_** to the null check and less-than check. It's almost 2.5 times as
 slow for the "100_Percent_Pass" check. That is no surprise, of course. If the test
@@ -266,7 +266,7 @@ over
 if(obj instanceof Something)
 ```
 
-So wat about the check corresponding to the first pattern?
+So, what about the check corresponding to the reference comparison?
 
 ```java
 // The hand-coded check:
@@ -298,3 +298,17 @@ one.) We cannot currently explain this. All we can say (or rather conclude) is:
 the JVM just has become really really good at lambdas &#8212; or dynamic invocation
 in general.
 
+### Composing
+When composing tests, Klojang Check facilitates a syntax that feels very typical 
+of Klojang Check, but that really is _just_ syntactical sugar:
+```java
+// sweet:
+Check.that(foo).is(notNull().andThat(bar, EQ(), "foo"));
+// plain:
+Check.that(foo).is(notNull().and(bar.equals("foo")));
+```
+But is it also just a waste of CPU cycles? Again &#8212; no!
+```
+results
+```
+Pretty amazing how well the JVM handles lambdas.
