@@ -273,10 +273,10 @@ Check.that(obj.getClass()).is(sameAs(), Something.class);
 Check.that(obj).has(type(), sameAs(), Something.class);
 ```
 
-Sure enough, all of the above variants performance now reach parity with the null
+Sure enough, all of the above variants now reach performance parity with the null
 check and the less-than check. But (for no good reason) we feared the idiomatic
-variant might lag somewhat behind the hand-coded and the "straightforward" variants.
-Quite the contrary, however:
+variant might lag behind the hand-coded and the "straightforward" variants. Quite the
+contrary, however:
 
 ```
 Benchmark                             Mode  Cnt   Score   Error  Units
