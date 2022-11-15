@@ -26,7 +26,7 @@ public class LessThan_050_Percent_Pass {
   public int counter0;
   public int counter1;
 
-  @Benchmark
+  //@Benchmark
   public void handCoded_NoMsgArgs(Blackhole bh) {
     try {
       if (small >= big) {
@@ -39,7 +39,20 @@ public class LessThan_050_Percent_Pass {
   }
 
   @Benchmark
-  public void handCoded_WithMsgArgs(Blackhole bh) {
+  public void handCoded_WithStrMsgArgs(Blackhole bh) {
+    try {
+      if (small >= big) {
+        throw new IllegalArgumentException(
+            String.format("%s arg must be < %s", small, big));
+      }
+      bh.consume(small);
+    } catch (IllegalArgumentException e) {
+      bh.consume(e);
+    }
+  }
+
+  @Benchmark
+  public void handCoded_WithIntMsgArgs(Blackhole bh) {
     try {
       if (small >= big) {
         throw new IllegalArgumentException(
@@ -51,7 +64,7 @@ public class LessThan_050_Percent_Pass {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public void prefabMessage(Blackhole bh) {
     try {
       bh.consume(Check.that(small).is(lt(), big).ok());
@@ -60,7 +73,7 @@ public class LessThan_050_Percent_Pass {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public void customMessage_NoMsgArgs(Blackhole bh) {
     try {
       bh.consume(Check.that(small).is(lt(), big, "argument too big").ok());
@@ -69,7 +82,7 @@ public class LessThan_050_Percent_Pass {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public void customMessage_NoMsgArgs_VarArgsNull(Blackhole bh) {
     try {
       bh.consume(Check.that(small).is(lt(), big, "argument too big", null).ok());
@@ -87,7 +100,7 @@ public class LessThan_050_Percent_Pass {
     }
   }
 
-  @Benchmark
+  //@Benchmark
   public void customException(Blackhole bh) {
     try {
       bh.consume(Check.that(small)
