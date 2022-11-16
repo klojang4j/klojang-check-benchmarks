@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static org.klojang.check.CommonChecks.lt;
-import static org.klojang.check.relation.ComposeMethods.validInt;
+import static org.klojang.check.relation.Compose.validInt;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
